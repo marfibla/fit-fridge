@@ -43,7 +43,6 @@ export function RecipeChecker({ items }: { items: Item[] }) {
               <ul className="flex flex-wrap gap-2">
                 {res.have.map((h) => <li key={h} className="flex items-center gap-1 rounded-full bg-primary/15 px-3 py-1 text-sm text-primary"><Check className="h-3 w-3" />{h}</li>)}
               </ul>
-              <div className="mt-3"><NearbyStores hints={res.missing.map((m) => m.where)} /></div>
             </div>
           )}
           {res.missing.length === 0 ? (
@@ -60,6 +59,7 @@ export function RecipeChecker({ items }: { items: Item[] }) {
                   </li>
                 ))}
               </ul>
+              <div className="mt-3"><NearbyStores hints={res.missing.map((m) => m.where)} /></div>
             </div>
           )}
           <p className="rounded-lg bg-secondary p-3 text-sm">{res.fitnessNote}</p>
