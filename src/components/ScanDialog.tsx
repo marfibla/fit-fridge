@@ -35,7 +35,7 @@ async function lookup(code: string): Promise<string | null> {
   } catch { return null; }
 }
 
-function PhotoSlot({ label, hint, icon: Icon, preview, onFile }: { label: string; hint: string; icon: typeof Camera; preview?: string; onFile: (f: File) => void }) {
+function PhotoSlot({ label, hint, icon: Icon, preview, onFile }: { label: string; hint: string; icon: typeof Camera; preview?: string | undefined; onFile: (f: File) => void }) {
   const ref = useRef<HTMLInputElement>(null);
   return (
     <button type="button" onClick={() => ref.current?.click()}
