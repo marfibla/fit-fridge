@@ -4,6 +4,7 @@ import { Bell, BellOff, ChefHat, Plus, Refrigerator, Trash2 } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RecipeChecker } from "@/components/RecipeChecker";
 import {
   type Category, type Item, daysLeft, expiryLabel, loadItems, notifyExpiring, saveItems, suggest,
 } from "@/lib/fridge";
@@ -147,6 +148,8 @@ function Index() {
             )}
           </section>
         </div>
+
+        <RecipeChecker items={items} />
 
         <section className="mt-6 rounded-xl bg-card p-5">
           <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-bold"><ChefHat className="text-primary" /> Recetas fitness para ti</h2>
