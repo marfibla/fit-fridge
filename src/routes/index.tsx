@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import {
   CATS, CAT_EMOJI, type Category, type Item, LEVEL_LABEL, daysLeft, emojiFor, expiryLabel, isExpiring, isLow, missingEssentials, useFridge,
 } from "@/lib/fridge";
+import { ScanDialog } from "@/components/ScanDialog";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,7 +59,10 @@ function FridgePage() {
           <h1 className="font-display text-3xl font-bold md:text-4xl">Mi nevera</h1>
           <p className="text-muted-foreground">{items.length} productos · {expiring.length} por caducar · {low.length} se acaban</p>
         </div>
-        <AddDialog onAdd={(it) => { setItems((p) => [...p, it]); toast.success(`${it.name} guardado en la nevera`); }} />
+        <div className="flex flex-wrap gap-2">
+          <ScanDialog onAdd={(it) => { setItems((p) => [...p, it]); toast.success(`${it.name} guardado en la nevera`); }} />
+          <AddDialog onAdd={(it) => { setItems((p) => [...p, it]); toast.success(`${it.name} guardado en la nevera`); }} />
+        </div>
       </div>
 
       {ready && items.length > 0 && (expiring.length > 0 || low.length > 0 || missing.length > 0) && (
