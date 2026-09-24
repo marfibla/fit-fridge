@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { checkRecipe, type RecipeCheck } from "@/lib/recipe-check.functions";
 import type { Item } from "@/lib/fridge";
+import { NearbyStores } from "@/components/NearbyStores";
 
 export function RecipeChecker({ items }: { items: Item[] }) {
   const run = useServerFn(checkRecipe);
@@ -58,6 +59,7 @@ export function RecipeChecker({ items }: { items: Item[] }) {
                   </li>
                 ))}
               </ul>
+              <div className="mt-3"><NearbyStores hints={res.missing.map((m) => m.where)} /></div>
             </div>
           )}
           <p className="rounded-lg bg-secondary p-3 text-sm">{res.fitnessNote}</p>
