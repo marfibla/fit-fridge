@@ -23,6 +23,7 @@ export const Route = createFileRoute("/semana")({
 
 const GOALS = [["perder", "Perder grasa"], ["mantener", "Mantener"], ["ganar", "Ganar músculo"]] as const;
 const MEALS = [["comida", "Comida"], ["cena", "Cena"]] as const;
+const STORES = [["el más barato", "El más barato"], ["Mercadona", "Mercadona"], ["Lidl", "Lidl"], ["Carrefour", "Carrefour"], ["Dia", "Dia"], ["Aldi", "Aldi"]] as const;
 const KEY = "fitfridge-week-plan";
 
 function WeekPage() {
@@ -30,6 +31,8 @@ function WeekPage() {
   const run = useServerFn(generateWeekPlan);
   const [goal, setGoal] = useState<(typeof GOALS)[number][0]>("perder");
   const [meal, setMeal] = useState<(typeof MEALS)[number][0]>("comida");
+  const [budget, setBudget] = useState("40");
+  const [store, setStore] = useState<(typeof STORES)[number][0]>("el más barato");
   const [plan, setPlan] = useState<WeekPlan | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +43,7 @@ function WeekPage() {
     setLoading(true); setError("");
     try {
       const fridge = items.filter((i) => i.level > 0 && daysLeft(i.expires) >= 0).map((i) => ({ name: i.name, qty: i.qty }));
-      const r = await run({ data: { goal, meal, fridge } });
+      const r = await run({ data: { goal, meal, fridge, store, budget: Number(budget) > 0 ? Number(budget) : null } });
       if (r.error || !r.plan) setError(r.error ?? "Error");
       else { setPlan(r.plan); localStorage.setItem(KEY, JSON.stringify(r.plan)); }
     } catch { setError("No se pudo crear el plan. Inténtalo de nuevo."); }
@@ -60,6 +63,12 @@ function WeekPage() {
       <section className="space-y-4 rounded-xl bg-card p-5">
         <Choice label="Tu objetivo" options={GOALS} value={goal} onChange={setGoal} />
         <Choice label="Plato del día" options={MEALS} value={meal} onChange={setMeal} />
+        <div>
+          <p className="mb-2 text-sm font-medium">Presupuesto para la semana</p>
+          <div className="flex items-center gap-2"><input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Sin límite"
+            className="w-28 rounded-lg border border-border bg-background px-3 py-2 text-lg font-bold" /><span className="text-lg">€</span></div>
+        </div>
+        <Choice label="Supermercado" options={STORES} value={store} onChange={setStore} />
         <Button size="lg" onClick={go} disabled={loading} className="w-full md:w-auto">
           {loading ? <><Loader2 className="animate-spin" /> Preparando tu semana…</> : <><CalendarDays /> {plan ? "Crear otro plan" : "Crear mi plan semanal"}</>}
         </Button>
@@ -68,6 +77,11 @@ function WeekPage() {
 
       {plan && (
         <>
+          <section className="rounded-xl border border-primary/40 bg-primary/10 p-4">
+            <p className="text-sm text-muted-foreground">En {plan.supermarket} puedes comprar todo esto por</p>
+            <p className="font-display text-3xl font-bold text-primary">{plan.totalPrice.toFixed(2)} €</p>
+            <p className="text-sm">{plan.budgetNote}</p>
+          </section>
           <section className="grid gap-3 sm:grid-cols-3">
             <Stat label="Calorías en 7 días" value={`${total.toLocaleString("es-ES")} kcal`} />
             <Stat label="Media por día" value={`${Math.round(total / Math.max(1, plan.days.length))} kcal`} />
@@ -101,7 +115,7 @@ function WeekPage() {
               <div key={sec} className="mb-3">
                 <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{sec}</p>
                 <ul className="mt-1 divide-y divide-border">
-                  {list.map((s) => <li key={s.item} className="flex justify-between py-1.5 text-sm"><span>{s.item}</span><span className="text-muted-foreground">{s.quantity}</span></li>)}
+                  {list.map((s) => <li key={s.item} className="flex justify-between py-1.5 text-sm"><span>{s.item}</span><span className="text-muted-foreground">{s.quantity} · <b className="text-foreground">{s.price.toFixed(2)} €</b></span></li>)}
                 </ul>
               </div>
             ))}
