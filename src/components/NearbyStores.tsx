@@ -3,7 +3,7 @@ import { Loader2, LocateFixed, MapPin, Navigation, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-type Store = { id: number; name: string; type: string; lat: number; lon: number; dist: number; address?: string };
+type Store = { id: number; name: string; type: string; lat: number; lon: number; dist: number; address: string };
 
 const TYPES: Record<string, string> = {
   supermarket: "Supermercado", convenience: "Tienda de barrio", greengrocer: "Frutería", butcher: "Carnicería",
@@ -41,15 +41,14 @@ export function NearbyStores({ hints }: { hints: string[] }) {
     const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: "data=" + encodeURIComponent(q) });
     if (!res.ok) throw new Error("overpass " + res.status);
     const json = (await res.json()) as { elements: { id: number; lat?: number; lon?: number; center?: { lat: number; lon: number }; tags?: Record<string, string> }[] };
-    const list = json.elements
-      .map((e) => {
+    const list: Store[] = json.elements
+      .flatMap((e): Store[] => {
         const la = e.lat ?? e.center?.lat, lo = e.lon ?? e.center?.lon, t = e.tags ?? {};
-        if (la == null || lo == null) return null;
-        const kind = t.amenity === "marketplace" ? "marketplace" : t.shop ?? "";
+        if (la == null || lo == null) return [];
+        const kind = t["amenity"] === "marketplace" ? "marketplace" : t["shop"] ?? "";
         const address = [t["addr:street"], t["addr:housenumber"]].filter(Boolean).join(" ");
-        return { id: e.id, name: t.name || t.brand || TYPES[kind] || "Tienda", type: TYPES[kind] ?? kind, lat: la, lon: lo, dist: km(lat, lon, la, lo), address };
+        return [{ id: e.id, name: t["name"] || t["brand"] || TYPES[kind] || "Tienda", type: TYPES[kind] ?? kind, lat: la, lon: lo, dist: km(lat, lon, la, lo), address }];
       })
-      .filter((s): s is Store => !!s)
       .sort((a, b) => a.dist - b.dist)
       .slice(0, 12);
     setStores(list);
