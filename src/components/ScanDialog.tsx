@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { Camera, Loader2, ScanBarcode, CalendarCheck } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Camera, Loader2, ScanBarcode, CalendarCheck, Upload } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -35,17 +35,51 @@ async function lookup(code: string): Promise<string | null> {
   } catch { return null; }
 }
 
-function PhotoSlot({ label, hint, icon: Icon, preview, onFile }: { label: string; hint: string; icon: typeof Camera; preview?: string | undefined; onFile: (f: File) => void }) {
-  const ref = useRef<HTMLInputElement>(null);
+function CameraSlot({ label, hint, icon: Icon, preview, onFile }: { label: string; hint: string; icon: typeof Camera; preview?: string | undefined; onFile: (f: File) => void }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [err, setErr] = useState("");
+  const stop = () => { stream?.getTracks().forEach((t) => t.stop()); setStream(null); };
+  useEffect(() => () => stream?.getTracks().forEach((t) => t.stop()), [stream]);
+  useEffect(() => { if (stream && videoRef.current) { videoRef.current.srcObject = stream; void videoRef.current.play(); } }, [stream]);
+
+  const start = async () => {
+    setErr("");
+    if (!navigator.mediaDevices?.getUserMedia) { setErr("Este navegador no permite usar la cámara. Sube una foto."); return; }
+    try {
+      setStream(await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1920 } }, audio: false }));
+    } catch (e) {
+      const n = (e as DOMException)?.name;
+      setErr(n === "NotAllowedError" ? "Has denegado el permiso de cámara. Actívalo en los ajustes del navegador (icono del candado) y vuelve a probar. En la vista previa, abre la app en una pestaña nueva."
+        : n === "NotFoundError" ? "No se ha encontrado ninguna cámara." : "No se pudo abrir la cámara. Sube una foto.");
+    }
+  };
+  const shoot = () => {
+    const v = videoRef.current; if (!v) return;
+    const c = document.createElement("canvas"); c.width = v.videoWidth; c.height = v.videoHeight;
+    c.getContext("2d")!.drawImage(v, 0, 0);
+    c.toBlob((b) => { if (b) onFile(new File([b], "foto.jpg", { type: "image/jpeg" })); stop(); }, "image/jpeg", 0.9);
+  };
+
   return (
-    <button type="button" onClick={() => ref.current?.click()}
-      className="relative flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border border-dashed border-primary/50 bg-primary/5 p-2 text-center text-sm">
-      {preview ? <img src={preview} alt={label} className="absolute inset-0 h-full w-full object-cover" /> : <>
-        <Icon className="size-7 text-primary" /><span className="font-semibold">{label}</span><span className="text-xs text-muted-foreground">{hint}</span>
-      </>}
-      <input ref={ref} type="file" accept="image/*" capture="environment" className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
-    </button>
+    <div className="space-y-2">
+      <div className="relative flex aspect-square flex-col items-center justify-center gap-1 overflow-hidden rounded-xl border border-dashed border-primary/50 bg-primary/5 p-2 text-center text-sm">
+        {stream ? <video ref={videoRef} playsInline muted className="absolute inset-0 h-full w-full object-cover" />
+          : preview ? <img src={preview} alt={label} className="absolute inset-0 h-full w-full object-cover" />
+          : <><Icon className="size-7 text-primary" /><span className="font-semibold">{label}</span><span className="text-xs text-muted-foreground">{hint}</span></>}
+      </div>
+      {stream ? (
+        <div className="flex gap-1"><Button type="button" size="sm" className="flex-1" onClick={shoot}><Camera /> Hacer foto</Button><Button type="button" size="sm" variant="ghost" onClick={stop}>✕</Button></div>
+      ) : (
+        <div className="flex gap-1">
+          <Button type="button" size="sm" className="flex-1" onClick={start}><Camera /> {preview ? "Repetir" : "Cámara"}</Button>
+          <Button type="button" size="sm" variant="outline" onClick={() => fileRef.current?.click()}><Upload /></Button>
+        </div>
+      )}
+      {err && <p className="text-xs text-destructive">{err}</p>}
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
+    </div>
   );
 }
 
@@ -101,8 +135,8 @@ export function ScanDialog({ onAdd }: { onAdd: (i: Item) => void }) {
         {!ready ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <PhotoSlot label="1. Código" hint="Barras o QR" icon={ScanBarcode} preview={codeImg} onFile={onCode} />
-              <PhotoSlot label="2. Fecha" hint="Caducidad impresa" icon={CalendarCheck} preview={dateImg} onFile={async (f) => setDateImg(await toDataUrl(f))} />
+              <CameraSlot label="1. Código" hint="Barras o QR" icon={ScanBarcode} preview={codeImg} onFile={onCode} />
+              <CameraSlot label="2. Fecha" hint="Caducidad impresa" icon={CalendarCheck} preview={dateImg} onFile={async (f) => setDateImg(await toDataUrl(f))} />
             </div>
             {barcodeName && <p className="text-sm text-primary">✓ {barcodeName}</p>}
             <p className="text-xs text-muted-foreground">Si el QR ya incluye la fecha, basta con la primera foto.</p>
