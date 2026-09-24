@@ -31,7 +31,7 @@ function WeekPage() {
   const run = useServerFn(generateWeekPlan);
   const [goal, setGoal] = useState<(typeof GOALS)[number][0]>("perder");
   const [meal, setMeal] = useState<(typeof MEALS)[number][0]>("comida");
-  const [budget, setBudget] = useState("40");
+  const [budget, setBudget] = useState("120");
   const [store, setStore] = useState<(typeof STORES)[number][0]>("el más barato");
   const [plan, setPlan] = useState<WeekPlan | null>(null);
   const [loading, setLoading] = useState(false);
@@ -63,10 +63,11 @@ function WeekPage() {
       <section className="space-y-4 rounded-xl bg-card p-5">
         <Choice label="Tu objetivo" options={GOALS} value={goal} onChange={setGoal} />
         <Choice label="Plato del día" options={MEALS} value={meal} onChange={setMeal} />
-        <div>
+          <div>
           <p className="mb-2 text-sm font-medium">Presupuesto para la semana</p>
           <div className="flex items-center gap-2"><input type="number" min={0} value={budget} onChange={(e) => setBudget(e.target.value)} placeholder="Sin límite"
             className="w-28 rounded-lg border border-border bg-background px-3 py-2 text-lg font-bold" /><span className="text-lg">€</span></div>
+          <p className="mt-1 text-xs text-muted-foreground">Orientativo: una compra real para 7 días suele costar entre 100 y 150 €.</p>
         </div>
         <Choice label="Supermercado" options={STORES} value={store} onChange={setStore} />
         <Button size="lg" onClick={go} disabled={loading} className="w-full md:w-auto">
