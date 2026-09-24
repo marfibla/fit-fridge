@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CompraRouteImport } from './routes/compra'
 import { Route as RecetasRouteImport } from './routes/recetas'
+import { Route as SemanaRouteImport } from './routes/semana'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const RecetasRoute = RecetasRouteImport.update({
   path: '/recetas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SemanaRoute = SemanaRouteImport.update({
+  id: '/semana',
+  path: '/semana',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/compra': typeof CompraRoute
   '/recetas': typeof RecetasRoute
+  '/semana': typeof SemanaRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/compra': typeof CompraRoute
   '/recetas': typeof RecetasRoute
+  '/semana': typeof SemanaRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/compra': typeof CompraRoute
   '/recetas': typeof RecetasRoute
+  '/semana': typeof SemanaRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/compra' | '/recetas'
+  fullPaths: '/' | '/compra' | '/recetas' | '/semana'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/compra' | '/recetas'
-  id: '__root__' | '/' | '/compra' | '/recetas'
+  to: '/' | '/compra' | '/recetas' | '/semana'
+  id: '__root__' | '/' | '/compra' | '/recetas' | '/semana'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CompraRoute: typeof CompraRoute
   RecetasRoute: typeof RecetasRoute
+  SemanaRoute: typeof SemanaRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecetasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/semana': {
+      id: '/semana'
+      path: '/semana'
+      fullPath: '/semana'
+      preLoaderRoute: typeof SemanaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CompraRoute: CompraRoute,
   RecetasRoute: RecetasRoute,
+  SemanaRoute: SemanaRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Bell, ChefHat, Refrigerator, ShoppingCart } from "lucide-react";
+import { Bell, CalendarDays, ChefHat, Refrigerator, ShoppingCart } from "lucide-react";
 import { isExpiring, isLow, missingEssentials, notifyAlerts, useFridge } from "@/lib/fridge";
 
 const NAV = [
   { to: "/", label: "Nevera", icon: Refrigerator },
   { to: "/recetas", label: "Recetas", icon: ChefHat },
+  { to: "/semana", label: "Semana", icon: CalendarDays },
   { to: "/compra", label: "Compra", icon: ShoppingCart },
 ] as const;
 
