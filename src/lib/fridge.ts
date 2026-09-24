@@ -92,7 +92,7 @@ export function notifyAlerts(items: Item[]) {
   };
   for (const i of items) {
     if (isExpiring(i)) send("exp-" + i.id, "FitFridge · " + i.name, expiryLabel(daysLeft(i.expires)) + ". ¡Úsalo hoy!");
-    if (isLow(i)) send("low-" + i.id, "FitFridge · te falta comida", `${i.name}: ${LEVEL_LABEL[i.level].toLowerCase()}. Añádelo a la compra.`);
+    if (isLow(i)) send("low-" + i.id, "FitFridge · te falta comida", `${i.name}: ${(LEVEL_LABEL[i.level] ?? "").toLowerCase()}. Añádelo a la compra.`);
   }
   const miss = missingEssentials(items);
   if (items.length && miss.length) send("ess", "FitFridge · faltan básicos", "No tienes: " + miss.map((m) => (m.label.split(" (")[0] ?? m.label)).join(", "));
