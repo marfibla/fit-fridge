@@ -41,7 +41,7 @@ export const generateRecipes = createServerFn({ method: "POST" })
         model: lovable.responses("openai/gpt-6-astra"),
         output: Output.object({ schema: Result }),
         system:
-          "Eres un nutricionista y chef fitness. Responde en español. Crea 4 recetas saludables y realistas usando sobre todo lo que hay en la nevera; puedes asumir básicos de despensa (sal, especias, aceite de oliva, agua). Prioriza los productos que caducan antes (usesExpiring=true si usa alguno que caduca en ≤3 días). Macros por ración estimadas y coherentes. Pasos cortos y claros. Marca inFridge=false para ingredientes que no están en la nevera (máximo 2 por receta).",
+          "Eres un nutricionista y chef fitness. Responde en español. Crea 4 recetas saludables y realistas usando sobre todo lo que hay en la nevera; puedes asumir básicos de despensa (sal, especias, aceite de oliva, agua). Prioriza los productos que caducan antes (usesExpiring=true si usa alguno que caduca en ≤3 días). Macros por ración estimadas y coherentes. Pasos cortos y claros. Los básicos de despensa (sal, pimienta, especias, aceite, agua) cuentan como inFridge=true. Marca inFridge=false solo para otros ingredientes que no están en la nevera (máximo 2 por receta).",
         prompt: `Objetivo: ${goal}\nTipo de comida: ${data.meal}\nNevera:\n${fridge}`,
         providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false, include: ["reasoning.encrypted_content"] } },
       });
