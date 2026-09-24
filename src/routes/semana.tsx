@@ -31,7 +31,7 @@ function WeekPage() {
   const run = useServerFn(generateWeekPlan);
   const [goal, setGoal] = useState<(typeof GOALS)[number][0]>("perder");
   const [meal, setMeal] = useState<(typeof MEALS)[number][0]>("comida");
-  const [budget, setBudget] = useState("40");
+  const [budget, setBudget] = useState("120");
   const [store, setStore] = useState<(typeof STORES)[number][0]>("el más barato");
   const [plan, setPlan] = useState<WeekPlan | null>(null);
   const [loading, setLoading] = useState(false);
